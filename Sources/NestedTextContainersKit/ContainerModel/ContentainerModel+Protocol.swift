@@ -6,11 +6,29 @@
 //
 
 import Foundation
+import SwiftUI
+import Observation
 
-protocol ContentainerModel {
+protocol ContentContainerModel: AnyObject {
     associatedtype DataContents
-    associatedtype NestedDataContents
+    associatedtype NestedDataContents: ContentContainerModel
     
-    var contentainerData: DataContents? { get set }
-    var nestedContent: NestedDataContents? { get set }
+    var contentainerData: DataContents { get set }
+    var nestedContent: [NestedDataContents] { get set }
+}
+
+@Observable class TextContentContainer: ContentContainerModel {
+    
+    typealias DataContents = String
+    typealias NestedDataContents = TextContentContainer
+    
+    var contentainerData: String
+    
+    var nestedContent: [TextContentContainer]
+    
+    init(contentainerData: String, nestedContent: [TextContentContainer]) {
+        self.contentainerData = contentainerData
+        self.nestedContent = nestedContent
+    }
+    
 }

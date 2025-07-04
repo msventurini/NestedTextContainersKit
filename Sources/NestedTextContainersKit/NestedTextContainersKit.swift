@@ -3,41 +3,65 @@
 
 import SwiftUI
 
-struct TesteModel: ContentainerModel {
-//    var contentainerData: String
-    
-//    typealias DataContents = String
-    
-//    typealias NestedDataContents = String
-
-    var contentainerData: String?
-    var nestedContent: String?
-}
-
-struct Teste<Model, CurrentContent, NestedContent>: ContentainerView where Model: ContentainerModel, CurrentContent: View, NestedContent: View {
+struct ContainerView<Model, CurrentContent, NestedContent>: View where Model: ContentContainerModel, CurrentContent: View, NestedContent: View {
     
     var model: Model
-    var currentContent: (_ dataContents: Model.DataContents?) -> CurrentContent
-    var nestedContent: (_ nestedDataContents: Model.NestedDataContents?) -> NestedContent
+    var currentContent: (_ dataContents: Model.DataContents) -> CurrentContent
+    var nestedContent: (_ nestedDataContents: [Model.NestedDataContents]) -> NestedContent
+    
+    var body: some View {
+        VStack {
+            currentContent(model.contentainerData)
+            nestedContent(model.nestedContent)
+        }
+    }
 
 }
 
-protocol ContainedView: View {
+
+
+struct TextContainerView: CellContent {
+    
+    typealias CellContentType = String
+    
+    var contents: String
     
 }
-
 
 
 #Preview {
-    @Previewable @State var teste: TesteModel = .init(contentainerData: "aaaaa", nestedContent: "bbbbbbb")
+    @Previewable @State var teste: TextContentContainer = .init(contentainerData: "aaaaa", nestedContent: [TextContentContainer(contentainerData: "bbba", nestedContent: [])])
     
-    Teste(model: teste) { dataContents in
-        Text(dataContents ?? "erro")
+    ContainerView(model: teste) { dataContents in
+//        ContainedView(model: "aaaaa")
+        TextContainerView(contents: dataContents)
     } nestedContent: { nestedDataContents in
-        Text(nestedDataContents ?? "erro")
+        TextContainerView(contents: nestedDataContents.first!.contentainerData)
     }
-
-    
 }
 
 
+protocol CellContent: View {
+    
+    associatedtype CellContentType: Codable
+    
+    var contents: CellContentType { get set }
+    
+}
+
+extension CellContent where Self.CellContentType == String {
+    
+    var body: some View {
+        Text(contents)
+    }
+        
+    
+
+}
+
+
+
+
+//enum CellContent {
+//    case rawText()
+//}
